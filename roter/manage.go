@@ -67,6 +67,8 @@ func (r *manage) commandExc(cmd *model.Command) *model.CommandResult {
 		res = controller.User.Modify(cmd)
 	case "user.remove":
 		res = controller.User.Remove(cmd)
+	case "user.password.reset":
+		res = controller.User.PasswordReset(cmd)
 	case "user.group.list":
 		res = controller.UserGroup.List(cmd)
 	case "user.group.modify":
@@ -108,7 +110,7 @@ func (r *manage) permissionCheck(cmd *model.Command) bool {
 				cmd.State.NickName = user.NickName
 				cmd.State.GroupId = user.GroupId
 				// 免权限验证路由
-				if cmd.Command == "sys.menu.auth" {
+				if cmd.Command == "sys.menu.auth" || cmd.Command == "user.password.reset" {
 					return true
 				} else {
 					d_roter := controller.Menu.InfoByCommand(cmd)

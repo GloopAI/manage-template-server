@@ -12,4 +12,6 @@ type Menu struct {
 	Sort         int    `gorm:"sort" json:"sort" `
 	Note         string `gorm:"note" json:"note"`
 	Children     []Menu `json:"children,omitempty"`
+	CreateTime   int    `gorm:"create_time" json:"create_time"`
+	UpdateTime   int    `gorm:"update_time" json:"update_time"`
 }

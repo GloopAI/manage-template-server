@@ -2,5 +2,7 @@
     "Dbconfig":"mailuser:123456@(10.0.0.21:3306)/mail?charset=utf8&parseTime=True&loc=Local",
     "DbPrefix":"z_",
     "IsDebug":true,
-    "PageSize":10
+    "PageSize":10,
+    "AllowMethods":"*",
+    "BindPort":"0.0.0.0:8080"
 }

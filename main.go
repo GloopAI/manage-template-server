@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"manage/base"
 	"manage/roter"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -13,12 +16,20 @@ func init() {
 }
 
 func main() {
-	gin.SetMode(gin.ReleaseMode)
-	r := gin.Default()
+	// gin 的debug设置
+	if !base.Conf.IsDebug {
+		logfile, err := os.Create("gin_http.log")
+		if err != nil {
+			fmt.Println("Could not create log file")
+		}
+		gin.SetMode(gin.ReleaseMode)
+		gin.DefaultWriter = io.MultiWriter(logfile)
+	}
 
+	r := gin.Default()
 	// 设置跨域
 	cf := cors.DefaultConfig()
-	cf.AllowMethods = []string{"*"}
+	cf.AllowMethods = []string{base.Conf.AllowMethods}
 	cf.AddAllowHeaders("X-Token")
 	cf.AllowAllOrigins = true
 	cf.AllowCredentials = true
@@ -33,6 +44,6 @@ func main() {
 		roter.Api.Recive(c)
 	})
 
-	r.Run() // listen and serve on 0.0.0.0:8080
+	r.Run(base.Conf.BindPort) // listen and serve on 0.0.0.0:8080
 	base.Log.Info("服务启动，端口:8080")
 }

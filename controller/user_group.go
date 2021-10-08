@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"manage/base"
 	"manage/model"
+	"time"
 )
 
 type user_group_permission struct {
@@ -90,8 +91,11 @@ func (ug *usergroup) Modify(cmd *model.Command) *model.CommandResult {
 				if _ug.System {
 					_usergroup.System = true
 				}
+				_usergroup.UpdateTime = int(time.Now().Unix())
 				base.Db.Save(&_usergroup)
 			} else {
+				_usergroup.CreateTime = int(time.Now().Unix())
+				_usergroup.UpdateTime = int(time.Now().Unix())
 				base.Db.Create(&_usergroup)
 			}
 			res.Code = 20000

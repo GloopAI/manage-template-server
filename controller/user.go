@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"manage/base"
 	"manage/model"
+	"time"
 
 	"github.com/goinggo/mapstructure"
 	"github.com/google/uuid"
@@ -157,11 +158,72 @@ func (u *user) Modify(cmd *model.Command) *model.CommandResult {
 }
 
 /*
+用户自己修改密码
+*/
+func (u *user) PasswordReset(cmd *model.Command) *model.CommandResult {
+	res := &model.CommandResult{Code: 20000, Message: "", Data: nil}
+	type reset struct {
+		Old        string `json:"old"`
+		New        string `json:"new"`
+		ConfirmNew string `json:"confirm_new"`
+	}
+	reset_json, _ := json.Marshal(cmd.Data)
+	var query reset
+	err := json.Unmarshal(reset_json, &query)
+	if err != nil {
+		res.Code = 50000
+		res.Message = "参数错误"
+		return res
+	}
+	if query.Old == "" {
+		res.Code = 50000
+		res.Message = "需要输入旧密码"
+		return res
+	}
+
+	var _u model.User
+	base.Db.Model(&_u).Where("id=?", cmd.State.Id).First(&_u)
+	if _u.Id == 0 {
+		res.Code = 50000
+		res.Message = "用户参数错误"
+		return res
+	}
+	_old_pass_byte := []byte(query.Old)
+	_old_pass := fmt.Sprintf("%x", md5.Sum(_old_pass_byte))
+	if _old_pass != _u.Password {
+		res.Code = 50000
+		res.Message = "旧密码错误"
+		return res
+	}
+
+	if query.New == "" {
+		res.Code = 50000
+		res.Message = "需要输入新密码"
+		return res
+	}
+	if query.New != query.ConfirmNew {
+		res.Code = 50000
+		res.Message = "两次新密码输入需要一致"
+		return res
+	}
+
+	// 开始修改密码
+	_new_passwd_byte := []byte(query.New)
+	_new_passwd := fmt.Sprintf("%x", md5.Sum(_new_passwd_byte))
+	__u := model.User{
+		Password:   _new_passwd,
+		UpdateTime: int(time.Now().Unix()),
+	}
+	base.Db.Model(&__u).Where("id=?", cmd.State.Id).Update(&__u)
+	return res
+}
+
+/*
 编辑用户信息保存
 */
 func modify_save(user *model.User) *model.CommandResult {
 	res := &model.CommandResult{Code: 20000, Message: "", Data: nil}
-	fmt.Println(user)
+	// fmt.Println(user)
 	if user.Username == "" {
 		res.Code = 50000
 		res.Message = "UserName 必须输入"
@@ -172,6 +234,7 @@ func modify_save(user *model.User) *model.CommandResult {
 		res.Code = 50000
 		res.Message = "Group 必须选择"
 	} else {
+
 		if user.Id == 0 {
 			_n_pass_byte := []byte("123456")
 			if user.Password != "" {
@@ -179,16 +242,20 @@ func modify_save(user *model.User) *model.CommandResult {
 			}
 			user.Password = fmt.Sprintf("%x", md5.Sum(_n_pass_byte))
 			u := model.User{
-				Username: user.Username,
-				NickName: user.NickName,
-				Password: user.Password,
-				GroupId:  user.GroupId}
+				Username:   user.Username,
+				NickName:   user.NickName,
+				Password:   user.Password,
+				GroupId:    user.GroupId,
+				CreateTime: int(time.Now().Unix()),
+				UpdateTime: int(time.Now().Unix()),
+			}
 			base.Db.Create(&u)
 		} else {
 			u := model.User{
-				Username: user.Username,
-				NickName: user.NickName,
-				GroupId:  user.GroupId,
+				Username:   user.Username,
+				NickName:   user.NickName,
+				GroupId:    user.GroupId,
+				UpdateTime: int(time.Now().Unix()),
 			}
 			if user.Password != "" {
 				_n_pass_byte := []byte(user.Password)

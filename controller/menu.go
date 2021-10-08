@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"manage/base"
 	"manage/model"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/goinggo/mapstructure"
@@ -141,8 +142,11 @@ func (m *menu) Modify(cmd *model.Command) *model.CommandResult {
 							if _m.System {
 								r_menu.System = true
 							}
+							r_menu.UpdateTime = int(time.Now().Unix())
 							base.Db.Save(&r_menu)
 						} else {
+							r_menu.CreateTime = int(time.Now().Unix())
+							r_menu.UpdateTime = int(time.Now().Unix())
 							base.Db.Create(&r_menu)
 						}
 						res.Code = 20000

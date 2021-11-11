@@ -1,3 +1,8 @@
 
 manage-template-server/
 __debug_bin.exe
+config.json
+database-mysql.sql
+go.mod
+go.sum
+controller/user.go

@@ -1,5 +1,5 @@
 {
-    "Dbconfig":"mailuser:123456@(10.0.0.21:3306)/manage_base?charset=utf8&parseTime=True&loc=Local",
+    "Dbconfig":"managetemplate:123456@(192.168.3.16:3306)/manage_template?charset=utf8&parseTime=True&loc=Local",
     "DbPrefix":"z_",
     "IsDebug":true,
     "PageSize":10,

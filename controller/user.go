@@ -45,6 +45,7 @@ func (u *user) Login(cmd *model.Command) *model.CommandResult {
 			r_pwd_byte := []byte(r_user.Password)
 			var r_pwd string
 			r_pwd = fmt.Sprintf("%x", md5.Sum(r_pwd_byte))
+			// fmt.Println(r_pwd)
 			if d_pwd != r_pwd {
 				res.Code = 50000
 				res.Message = "账号或者密码错误"
